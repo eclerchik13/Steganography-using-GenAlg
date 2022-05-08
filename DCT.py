@@ -4,10 +4,15 @@ from skimage.util import view_as_blocks
 from scipy.fftpack import dct, idct
 import matplotlib.pyplot as plt
 import math
+import pandas as pd
+
+import KochAndZhao
+import SeparateFunc
 
 n = 8
-mark = 250
+mark = 50
 original = io.imread('forest.png')
+original_2 = io.imread('https://www.miruma.ru/thumbs/7e8475989_160x160.jpg')
 u1, v1 = 4, 5
 u2, v2 = 3, 4
 
@@ -65,36 +70,37 @@ def create_blocks(channel):
     return blocks
 
 
-def PSNR(original, compressed):
-    mse = np.mean((original - compressed) ** 2)
+def PSNR(original_img, compressed):
+    mse = np.mean((original_img - compressed) ** 2)
     if mse == 0:
-        print("psnr80")
+        print("psnr=80")
         return 80
     max_pixel = 255.0
     psnr = 20 * math.log10(max_pixel / math.sqrt(mse))
     return psnr
 
 
+def blue_channel_fusion(blue_channel, size_img, change_blocks):
+    copy_blue = np.copy(blue_channel)
+    for i in range(size_img):
+        for j in range(size_img):
+            copy_blue[i * n: (i + 1) * n, j * n: (j + 1) * n] = change_blocks[i][j]
+    return copy_blue
+
+
 if __name__ == "__main__":
-    change = original.copy()
+    change = original_2.copy()
     blue = change[:, :, 2]  # выделение синего канала
     blocks_image = create_blocks(blue)  # массив блоков синего канала (изображения)
     dct_all_blocks = get_dct_blocks(blocks_image)  # массив блоков ДКП
+    h_1 = dct_all_blocks.shape[0]   # кол-во блоков
 
-    h_1 = dct_all_blocks.shape[0]
+    first_coefs = KochAndZhao.find_coefs_for_koch(h_1, h_1, dct_all_blocks, blocks_image, func=None)
+    SeparateFunc.save_coef('1coef.npy', first_coefs)     # сохранение первых найденных коэффициентов
 
-    for i_ in range(h_1):
-        for j_ in range(h_1):
-            dct_all_blocks[i_][j_][u1][v1] = mark
-            # dct_all_blocks[i_][j_][u2][v2] = mark
-
-    change_blue = get_idct_blocks(dct_all_blocks)
-
-    for i_ in range(h_1):
-        for j_ in range(h_1):
-            blue[i_ * n: (i_ + 1) * n, j_ * n: (j_ + 1) * n] = change_blue[i_][j_]
-
-    change[:, :, 2] = blue
-    print(PSNR(original, change))
-    plt.imshow(np.hstack((change, original)))
+    idct_all_blocks = get_idct_blocks(dct_all_blocks)
+    blue_changed = blue_channel_fusion(blue, h_1, idct_all_blocks)
+    change[:, :, 2] = blue_changed
+    print(PSNR(original_2, change))
+    plt.imshow(np.hstack((change, original_2)), cmap='gray')
     plt.show()
