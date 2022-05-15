@@ -2,6 +2,7 @@ from numpy.random import rand
 import numpy as np
 import random
 
+
 init_conditions = 26
 
 
