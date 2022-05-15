@@ -10,7 +10,7 @@ import KochAndZhao
 import SeparateFunc
 
 n = 8
-mark = 50
+#mark = 25
 original = io.imread('forest.png')
 original_2 = io.imread('https://www.miruma.ru/thumbs/7e8475989_160x160.jpg')
 u1, v1 = 4, 5
@@ -70,7 +70,7 @@ def create_blocks(channel):
     return blocks
 
 
-def PSNR(original_img, compressed):
+def PSNR(original_img, compressed):     # total psnr
     mse = np.mean((original_img - compressed) ** 2)
     if mse == 0:
         print("psnr=80")
@@ -89,13 +89,14 @@ def blue_channel_fusion(blue_channel, size_img, change_blocks):
 
 
 if __name__ == "__main__":
+
     change = original_2.copy()
     blue = change[:, :, 2]  # выделение синего канала
     blocks_image = create_blocks(blue)  # массив блоков синего канала (изображения)
     dct_all_blocks = get_dct_blocks(blocks_image)  # массив блоков ДКП
     h_1 = dct_all_blocks.shape[0]   # кол-во блоков
 
-    first_coefs = KochAndZhao.find_coefs_for_koch(h_1, h_1, dct_all_blocks, blocks_image, func=None)
+    first_coefs = KochAndZhao.find_coefs_for_koch(h_1, h_1, dct_all_blocks, blocks_image)
     SeparateFunc.save_coef('1coef.npy', first_coefs)     # сохранение первых найденных коэффициентов
 
     idct_all_blocks = get_idct_blocks(dct_all_blocks)
