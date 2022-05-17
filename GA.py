@@ -14,7 +14,8 @@ def get_middle_coffs(n):  # find coef in midrange
 
 
 def get_population(n_pop, arr_coord_gen):  # create population
-    np.random.seed(init_conditions)
+    random.seed(0)
+    random.seed(init_conditions)
     chrom = [random.sample(arr_coord_gen, 2) for _ in range(n_pop)]
     return chrom
 
@@ -86,3 +87,4 @@ def ga_for_block(block, true_block, fitness_function, n, n_pop, n_iter, size_tou
         arr_pop = children
         #print("Generation №", generation, "chrom", best_chrom, "f-f", best_score)
     return [best_chrom, best_score]
+
