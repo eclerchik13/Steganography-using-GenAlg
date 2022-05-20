@@ -3,7 +3,7 @@ import numpy as np
 import random
 
 
-init_conditions = 26
+init_conditions = 25
 
 
 def get_middle_coffs(n):  # find coef in midrange
@@ -71,12 +71,12 @@ def reproduction(select_pop, p_cross, arr_gen, p_mut):
     return np.array(res_)       # [chrom1, chrom2]
 
 
-def ga_for_block(block, true_block, fitness_function, n, n_pop, n_iter, size_tour, p_cross, p_mut):
+def ga_for_block(block, true_block, fitness_function, direction, n, n_pop, n_iter, size_tour, p_cross, p_mut):
     arr_gen = get_middle_coffs(n)
     arr_pop = get_population(n_pop, arr_gen)
     best_chrom, best_score = 0, 0
     for generation in range(n_iter):
-        arr_fitness_value = [fitness_function(p, block, true_block) for p in arr_pop]
+        arr_fitness_value = [fitness_function(p, block, true_block, direction) for p in arr_pop]
         best_chrom, best_score = find_best_chrom(best_score, best_chrom, arr_fitness_value, arr_pop, n_pop)
         selected_pop = [selection_tour(arr_pop, arr_fitness_value, size_tour) for _ in range(n_pop)]
         children = list()
