@@ -1,19 +1,7 @@
 import numpy as np
-import math
 
 
 P = 25
-
-'''
-def PSNR_block(original_img_block, compressed_block):
-    mse = np.mean((original_img_block - compressed_block) ** 2)
-    if mse == 0:
-        print("psnr=80")
-        return 80
-    max_pixel = 255.0
-    psnr = 20 * math.log10(max_pixel / math.sqrt(mse))
-    return psnr
-'''
 
 
 def coeff_sign(dct_coef_1, dct_coef_2):  # вычисление знака коэффициента
@@ -34,11 +22,26 @@ def change_block(type_method, valid_for_user, dct_value_1, dct_value_2):  # ме
             dct_value_1, dct_value_2 = sign_coef_1 * (abs(dct_value_2) + P + 1), sign_coef_2 * (abs(dct_value_1) + P + 1)
     elif type_method == 2:
         if valid_for_user:
-            dct_value_1, dct_value_2 = dct_value_1 - P, dct_value_2 - P
+            dct_value_1, dct_value_2 = dct_value_1 - P - 1, dct_value_2 - P - 1
         else:
-            dct_value_1, dct_value_2 = dct_value_1 + P, dct_value_2 + P
+            dct_value_1, dct_value_2 = dct_value_1 + P + 1, dct_value_2 + P + 1
     elif type_method == 1:
         dct_value_1, dct_value_2 = 0, 0
+    elif type_method == 0:
+        sign_coef_1, sign_coef_2 = coeff_sign(dct_value_1, dct_value_2)
+        dct_value_1, dct_value_2 = sign_coef_1 * (P + 1), sign_coef_2 * (P + 1)
+    elif type_method == 4:
+        sign_coef_1, sign_coef_2 = coeff_sign(dct_value_1, dct_value_2)
+        if valid_for_user:
+            dct_value_1, dct_value_2 = sign_coef_1 * (abs(dct_value_1) - P - 1), sign_coef_2 * (abs(dct_value_2) - P - 1)
+        else:
+            dct_value_1, dct_value_2 = sign_coef_1 * (abs(dct_value_1) + P + 1), sign_coef_2 * (abs(dct_value_2) + P + 1)
+    elif type_method == 5:
+        sign_coef_1, sign_coef_2 = coeff_sign(dct_value_1, dct_value_2)
+        if valid_for_user:
+            dct_value_1, dct_value_2 = sign_coef_1 * (dct_value_1 - P - 1), sign_coef_2 * (dct_value_2 - P - 1)
+        else:
+            dct_value_1, dct_value_2 = sign_coef_1 * (dct_value_1 + P + 1), sign_coef_2 * (dct_value_2 + P + 1)
     return dct_value_1, dct_value_2
 
 
@@ -79,6 +82,15 @@ def hiding_bits(h, n, blocks, coefs_blocks):
 
 
 if __name__ == "__main__":
-    y = [[4, 2], [4, 4]]
-    x = [[5, 2], [4, 4]]
-    print( (y[1] == x[1]))
+    """
+    y = [ [[5, 2], [4, 4]],
+          [[4, 3], [4,3]] ]
+    x = [ [[2, 5], [4, 4]],
+          [[4, 3], [4, 3]] ]
+    if (y[0][0] == x[0][0]):
+        print('yeas')
+        print(y[0])"""
+    a = [[0, 5], [0, 6], [0, 7]]
+    b = [0, 4]
+    if b not in a:
+        print('yes')
